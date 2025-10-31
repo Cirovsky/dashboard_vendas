@@ -3,7 +3,7 @@ import plotly.express as px
 import pandas as pd
 from dataset import df
 from utils import format_number
-from graphs import grafico_map_estado, grafico_receita_mensal
+from graphs import grafico_map_estado, grafico_receita_mensal,grafico_bar_rec_estado,grafico_rec_categoria
 
 st.set_page_config(layout="wide")
 st.title("Dashboard de Vendas &#128722;")
@@ -18,9 +18,11 @@ with aba2:
     with coluna1:
         st.metric(label="Receita Total",value=format_number(df["Preço"].sum(),"R$"))
         st.plotly_chart(grafico_map_estado)
+        st.plotly_chart(grafico_bar_rec_estado,use_container_width=True)
     with coluna2:
         st.metric(label="Total de Vendas",value=format_number(df.shape[0]))
         st.plotly_chart(grafico_receita_mensal, use_container_width=True)
+        st.plotly_chart(grafico_rec_categoria, use_container_width=True)
         
 with aba3:
     st.table(set(df["Vendedor"]))
