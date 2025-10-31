@@ -21,7 +21,7 @@ df_rec_estado.sort_values(by='Preço',ascending=False,inplace=True)
 
 #receita por mês
 
-df_rec_mensal:pd.DataFrame = df.set_index('Data da Compra').groupby(pd.Grouper(freq='M'))[['Preço']].sum().reset_index()#reset é importante
+df_rec_mensal:pd.DataFrame = df.set_index('Data da Compra').groupby(pd.Grouper(freq='ME'))[['Preço']].sum().reset_index()#reset é importante
 df_rec_mensal['Ano'] = df_rec_mensal['Data da Compra'].dt.year
 df_rec_mensal['Mês'] = df_rec_mensal['Data da Compra'].dt.month_name()
 
@@ -29,4 +29,10 @@ df_rec_mensal['Mês'] = df_rec_mensal['Data da Compra'].dt.month_name()
 
 df_rec_categoria:pd.DataFrame = df.groupby('Categoria do Produto')[['Preço']].sum()
 df_rec_categoria = df.drop_duplicates(subset='Categoria do Produto')[['Categoria do Produto']].merge(df_rec_categoria, left_on='Categoria do Produto', right_index=True)
-print(df_rec_categoria)
+
+
+df_vendedores:pd.DataFrame = pd.DataFrame(df.groupby('Vendedor')['Preço'].agg(['sum','count'])).reset_index()
+df_vendedores.rename(columns={'sum':'receita','count':'vendas'}, inplace=True)
+df_vendedores['avaliação'] = df_vendedores['Vendedor'].map(lambda vendedor: df[df['Vendedor']== vendedor]['Avaliação da compra'].mean())
+colunas_categorias:list[str] = df_rec_categoria['Categoria do Produto'].to_list()
+print(df_vendedores)
