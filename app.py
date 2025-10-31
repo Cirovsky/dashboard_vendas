@@ -3,7 +3,7 @@ import plotly.express as px
 import pandas as pd
 from dataset import df
 from utils import format_number
-from graphs import grafico_map_estado
+from graphs import grafico_map_estado, grafico_receita_mensal
 
 st.set_page_config(layout="wide")
 st.title("Dashboard de Vendas &#128722;")
@@ -20,6 +20,7 @@ with aba2:
         st.plotly_chart(grafico_map_estado)
     with coluna2:
         st.metric(label="Total de Vendas",value=format_number(df.shape[0]))
+        st.plotly_chart(grafico_receita_mensal, use_container_width=True)
         
 with aba3:
     st.table(set(df["Vendedor"]))
