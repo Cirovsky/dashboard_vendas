@@ -1,67 +1,76 @@
 import plotly.express as px
-from dataset import df_rec_estado,df_rec_mensal,df_rec_categoria,df_vendedores
+import pandas as pd
 
-grafico_map_estado = px.scatter_geo(
-    data_frame=df_rec_estado,
-    lat= 'lat',
-    lon= 'lon',
-    scope='south america',
-    size= 'Preço',
-    template='seaborn',
-    hover_name='Local da compra',
-    hover_data={'lat': False, 'lon': False},
-    title='receita por estado',
-)
 
-grafico_receita_mensal = px.line(
-    data_frame=df_rec_mensal,
-    x= 'Mês',
-    y= 'Preço',
-    markers=True,
-    range_y=(0, df_rec_mensal.max()),
-    color= 'Ano',
-    line_dash='Ano',
-    title='Histórico de receita de vendas por mês',
-)
+def cria_grafico_mapa(df:pd.DataFrame,title: str, lat:str, lon:str,size:str,hover_name:str, hover_data:dict, scope:str = 'world', template:str = 'seaborn', sort:str|None = None):
+    '''Cria gráfico estilo mapa (scatter_geo) a partir dos parametros enviados'''
+    if sort is not None:
+        df.sort_values(by=sort, ascending=False, inplace=True)
 
-grafico_receita_mensal.update_layout(yaxis_title = 'Receita')
+    grafico_map_estado = px.scatter_geo(
+        data_frame=df,
+        title=title,
+        lat= lat,
+        lon= lon,
+        scope=scope,
+        size= size,
+        template=template,
+        hover_name=hover_name,
+        hover_data=hover_data,
+    )
+    return grafico_map_estado
 
-grafico_bar_rec_estado= px.bar(
-    data_frame=df_rec_estado.head(7),
-    x='Local da compra',
-    y = 'Preço',
-    title='Receita por estado'
-)
+def cria_grafico_linha(df:pd.DataFrame,title:str, x:str, y:str, color:str, markers:bool = True):
+    '''Cria gráfico de linha a partir dos parametros enviados'''
+    grafico_linha = px.line(
+        data_frame=df,
+        title=title,
+        x= x,
+        y= y,
+        markers=markers,
+        range_y=(0, df.max()),
+        color= color,
+    )
 
-grafico_bar_rec_estado.update_layout(yaxis_title = "Receita")
+    grafico_linha.update_layout(yaxis_title = 'Receita')
 
-grafico_rec_categoria = px.pie(
-    data_frame=df_rec_categoria,
-    names='Categoria do Produto',
-    values="Preço",
-    title='Parcela de Receitas por categoria'
-)
-df_vendedores.sort_values(by="receita", ascending=False, inplace=True)
-grafico_rec_vendedores = px.bar(
-    data_frame=df_vendedores.head(7),
-    x= 'vendas',
-    y= 'Vendedor',
-    title='Receita por vendedor'
-)
-df_vendedores.sort_values(by="vendas", ascending=False, inplace=True)
-grafico_venda_vendedores = px.bar(
-    data_frame=df_vendedores.head(7),
-    x= 'vendas',
-    y= 'Vendedor',
-    text_auto=True,
-    title='Vendas por vendedor'
-)
-df_vendedores.sort_values(by="avaliação", ascending=False, inplace=True)
+    return grafico_linha
 
-grafico_avaliacao_vendedores = px.bar(
-    data_frame=df_vendedores.head(7),
-    x= 'avaliação',
-    y= 'Vendedor',
-    text_auto=True,
-    title='Avaliação por vendedor'
-)
+def criar_grafico_barra(df:pd.DataFrame
+                      ,x:str, 
+                      y:str, 
+                      title:str,
+                      y_title:str|None = None, 
+                      sort:str|None = None, 
+                      length_values:int = 7, 
+                      text_auto:bool = False,
+                      range_x:tuple = None,
+                      range_y:tuple = None
+                      ):
+    '''Cria gráfico de barras a partir dos parametros enviados'''
+    if sort != None:
+        df.sort_values(by=sort, ascending=False, inplace=True)
+    grafico_barra= px.bar(
+        data_frame=df.head(length_values),
+        title=title,
+        x = x,
+        y = y,
+        text_auto=text_auto
+    )
+    if y_title != None:
+        grafico_barra.update_layout(yaxis_title = y_title)
+    if range_x != None:
+        grafico_barra.update_xaxes({"range":range_x})
+    if range_y != None:
+        grafico_barra.update_yaxes({"range":range_y})
+
+    return grafico_barra
+
+def criar_grafico_pizza(df:pd.DataFrame,title:str, names:str, values:str):
+    grafico_pizza = px.pie(
+        data_frame=df,
+        title=title,
+        names=names,
+        values=values
+    )
+    return grafico_pizza
